@@ -10,6 +10,7 @@ public class Entity : MonoBehaviour
     protected Rigidbody2D Rb;
     protected SpriteRenderer SpriteRenderer;
     public const float FallingThreshold = -0.5f;
+    
     // Move
     protected void Move(float moveInput, float moveSpeed)
     {
@@ -62,6 +63,10 @@ public class Entity : MonoBehaviour
         {
             IsFalling = false;
         }
+    }
+    
+    protected void Hit(){
+        
     }
 
     void Start()

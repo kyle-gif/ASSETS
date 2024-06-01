@@ -86,12 +86,12 @@ public class HeroKnight : MonoBehaviour { // 모노비헤이비어를 상속한 
         //줄바꿈
         //줄바꿈
         m_isWallSliding = (m_wallSensorR1.State() && m_wallSensorR2.State()) || (m_wallSensorL1.State() && m_wallSensorL2.State());
-        m_animator.SetBool("WallSlide", m_isWallSliding);
+        m_animator.SetBool("WallSlide", m_isWallSliding); //----> 쓸모없음
         //줄바꿈
         if (Input.GetKeyDown("e") && !m_rolling)
         { // 중괄호임
             m_animator.SetBool("noBlood", m_noBlood);
-            m_animator.SetTrigger("Death");
+            m_animator.SetTrigger("Death"); //--> 쓸모 있?음
         } // 중괄호임
         //줄바꿈
         else if (Input.GetKeyDown("q") && !m_rolling)

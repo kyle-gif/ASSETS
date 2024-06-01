@@ -7,11 +7,28 @@ public class You : Entity
 {
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private float jumpForce = 5.0f;
+    private int AttackStack = 0;
+    private float TimeToAttack = 0;
+    private const int MaxAttackCount = 2;
+    private bool IsAttacking;
     private Animator animator;
+    private float Hp;
 
     void PlayerPrimaryAttack()
     {
-        
+        animator.SetTrigger("Attack");
+    }
+    void FreezeCharacter()
+    {
+        Rb.velocity = Vector2.zero;
+        Rb.gravityScale = 0;
+        Rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
+    }
+
+    void UnfreezeCharacter()
+    {
+        Rb.gravityScale = 1;
+        Rb.constraints = RigidbodyConstraints2D.FreezeRotation; // or RigidbodyConstraints2D.None if you don't want to constrain rotation
     }
     
     void Start()
@@ -26,39 +43,44 @@ public class You : Entity
         SetFalling();
         //Move
         float moveInput = Input.GetAxis("Horizontal");
-        
         base.Move(moveInput, moveSpeed);
-        animator.SetFloat("Velocity", Mathf.Abs(Rb.velocity.x));
-        /*Debug.Log(Rb.velocity.x);*/
+        if(Mathf.Abs(Rb.velocity.x) > Mathf.Epsilon) animator.SetInteger("AnimState", 1);
+        else animator.SetInteger("AnimState", 0);
         FlipDir(moveInput);
         
         //Jump
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
         {
             animator.SetBool("IsJumping", true);
-            Debug.Log("True");
             base.Jump(jumpForce);
         }
-        else
-        {
-            animator.SetBool("IsJumping", false);
-        }
+        else animator.SetBool("IsJumping", false);
         
         //Attack
         if (Input.GetKeyDown(KeyCode.K))
         {
+            IsAttacking = true;
             PlayerPrimaryAttack();
+            Debug.Log(AttackStack);
+            animator.SetInteger("AttackStack", AttackStack);
+            AttackStack++;
         }
-
-        if (IsFalling)
+        if (TimeToAttack > 1.5f)
         {
-            animator.SetBool("IsFalling", true);
+            TimeToAttack = 0.0f;
+            AttackStack = 0;
         }
-        else
-        {
-            animator.SetBool("IsFalling", false);
-        }
+        if (AttackStack >= MaxAttackCount) AttackStack = 0;
+        if (IsAttacking) FreezeCharacter();
+        else UnfreezeCharacter();
         
-        Debug.Log("Hello World!");
+        TimeToAttack += Time.deltaTime;
+        animator.SetFloat("Till", TimeToAttack);
+        
+        if (IsGrounded) animator.SetBool("IsGrounded", false);
+        else animator.SetBool("IsGrounded", true);
+        
+        if (IsFalling) animator.SetBool("IsFalling", true);
+        else animator.SetBool("IsFalling", false);
     }
 }
