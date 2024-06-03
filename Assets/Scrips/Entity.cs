@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Entity : MonoBehaviour
+public abstract class Entity : MonoBehaviour
 {
     protected bool IsGrounded;
     protected bool IsFalling = false;
@@ -18,7 +18,7 @@ public class Entity : MonoBehaviour
     }
 
     // Flip
-    protected void FlipDir(float moveInput)
+    public virtual void FlipDir(float moveInput)
     {
         if (moveInput > 0)
         {
@@ -64,9 +64,10 @@ public class Entity : MonoBehaviour
             IsFalling = false;
         }
     }
-    
-    protected void Hit(){
-        
+
+    public virtual float Hit(float hp, float damage)
+    {
+        return hp -= damage;
     }
 
     void Start()
