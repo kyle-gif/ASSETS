@@ -10,6 +10,7 @@ public abstract class Entity : MonoBehaviour
     protected Rigidbody2D Rb;
     protected SpriteRenderer SpriteRenderer;
     public const float FallingThreshold = -0.5f;
+    private bool isFlipped;
     
     // Move
     protected void Move(float moveInput, float moveSpeed)
@@ -20,13 +21,20 @@ public abstract class Entity : MonoBehaviour
     // Flip
     public virtual void FlipDir(float moveInput)
     {
-        if (moveInput > 0)
+        Vector3 flipped = transform.localScale;
+        flipped.z *= -1f;
+        
+        if (moveInput > 0 && isFlipped)
         {
-            SpriteRenderer.flipX = false;
+            transform.localScale = flipped;
+            transform.Rotate(0f, 180f, 0f);
+            isFlipped = false;
         }
-        else if (moveInput < 0)
+        else if (moveInput < 0 && !isFlipped)
         {
-            SpriteRenderer.flipX = true;
+            transform.localScale = flipped;
+            transform.Rotate(0f, 180f, 0f);
+            isFlipped = true;
         }
     }
 

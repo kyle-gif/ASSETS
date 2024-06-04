@@ -57,6 +57,7 @@ public class You : Entity
     
     void Update()
     {
+        Rb.velocity =Vector3.zero;
         SetFalling();
         //Move
         float moveInput = Input.GetAxis("Horizontal");
