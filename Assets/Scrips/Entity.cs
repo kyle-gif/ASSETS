@@ -1,16 +1,14 @@
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public abstract class Entity : MonoBehaviour
 {
     protected bool IsGrounded;
-    protected bool IsFalling = false;
+    protected bool IsFalling = true;
     protected Rigidbody2D Rb;
     protected SpriteRenderer SpriteRenderer;
     public const float FallingThreshold = -0.5f;
-    private bool isFlipped;
+    protected bool isFlipped;  // Moved from Boss class
     
     // Move
     protected void Move(float moveInput, float moveSpeed)
@@ -21,20 +19,12 @@ public abstract class Entity : MonoBehaviour
     // Flip
     public virtual void FlipDir(float moveInput)
     {
-        Vector3 flipped = transform.localScale;
-        flipped.z *= -1f;
-        
-        if (moveInput > 0 && isFlipped)
+        if ((moveInput > 0 && isFlipped) || (moveInput < 0 && !isFlipped))
         {
+            Vector3 flipped = transform.localScale;
+            flipped.x *= -1f; // Flipping along the x-axis for 2D game
             transform.localScale = flipped;
-            transform.Rotate(0f, 180f, 0f);
-            isFlipped = false;
-        }
-        else if (moveInput < 0 && !isFlipped)
-        {
-            transform.localScale = flipped;
-            transform.Rotate(0f, 180f, 0f);
-            isFlipped = true;
+            isFlipped = !isFlipped;
         }
     }
 
@@ -52,6 +42,7 @@ public abstract class Entity : MonoBehaviour
             IsGrounded = true;
         }
     }
+
     void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
@@ -60,7 +51,7 @@ public abstract class Entity : MonoBehaviour
         }
     }
     
-    //Is falling
+    // Is falling
     protected void SetFalling()
     {
         if (Rb.velocity.y < FallingThreshold)
@@ -72,14 +63,5 @@ public abstract class Entity : MonoBehaviour
             IsFalling = false;
         }
     }
-
-    public virtual float Hit(float hp, float damage)
-    {
-        return hp -= damage;
-    }
-
-    void Start()
-    {
-    }
-}
     
+}
