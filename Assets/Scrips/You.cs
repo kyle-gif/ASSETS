@@ -28,10 +28,26 @@ public class You : Entity
     public float Hp = MaxHp;
     public HealthUI_TSET healthBar;
 
+    
+    private IEnumerator AttackDelay()
+    {
+        // Stop movement
+        Rb.velocity = Vector2.zero;
+
+        // Wait for the attack duration
+        yield return new WaitForSeconds(0.5f);
+
+        // Wait for the attack animation to complete
+        yield return new WaitUntil(() => !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Attack1") || !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Attack2"));
+
+        m_isAttacking = false;
+    }
+    
     void PlayerPrimaryAttack()
     {
         m_isAttacking = true;
         m_animator.SetTrigger("Attack");
+        StartCoroutine(AttackDelay());
         Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(pos.position, boxSize, 0);
         foreach (Collider2D collider in collider2Ds)
         {

@@ -62,7 +62,7 @@ public class Boss : Entity
         yield return new WaitForSeconds(AttackWait);
 
         // Wait for the attack animation to complete
-        yield return new WaitUntil(() => !animator.GetCurrentAnimatorStateInfo(0).IsName("Attack1"));
+        yield return new WaitUntil(() => !animator.GetCurrentAnimatorStateInfo(0).IsName("HeroKnight_Attack1"));
 
         isAttacking = false;
     }
