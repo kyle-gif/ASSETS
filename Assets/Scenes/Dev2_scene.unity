@@ -1191,7 +1191,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Hp: 100
-  damage: 5
+  damage: 20
   player: {fileID: 159145756}
   speed: 3
   pos: {fileID: 1319883131}

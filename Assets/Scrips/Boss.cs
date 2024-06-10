@@ -6,7 +6,7 @@ public class Boss : Entity
     public const float maxHP = 100.0f;
     public float Hp = maxHP;
 
-    [SerializeField] private const float maxDamage = 5.0f;
+    [SerializeField] private const float maxDamage = 20.0f;
     public float damage = maxDamage;
     
     public Transform player;
@@ -14,7 +14,7 @@ public class Boss : Entity
     public float speed = 3.0f;
     public const float maxSpeed = 3.0f;
     public const float attackRange = 2.0f;
-    public const float AttackWait = 0.6f;
+    public const float AttackWait = 0.52f;
     public Transform pos;
     public Vector2 boxSize;
     private float m_attackStack = 0;
@@ -52,20 +52,6 @@ public class Boss : Entity
         Hp -= damage;
         healthBar.SetHealth(Hp);
     }
-    
-    private IEnumerator AttackDelay()
-    {
-        // Stop movement
-        Rb.velocity = Vector2.zero;
-
-        // Wait for the attack duration
-        yield return new WaitForSeconds(AttackWait);
-
-        // Wait for the attack animation to complete
-        yield return new WaitUntil(() => !animator.GetCurrentAnimatorStateInfo(0).IsName("HeroKnight_Attack1"));
-
-        isAttacking = false;
-    }
 
     private void LetsGo()
     {
@@ -85,6 +71,20 @@ public class Boss : Entity
         }
     }
 
+    private IEnumerator AttackDelay()
+    {
+        // Stop movement
+        Rb.velocity = Vector2.zero;
+
+        // Wait for the attack duration
+        yield return new WaitForSeconds(AttackWait);
+
+        // Wait for the attack animation to complete
+        //yield return new WaitUntil(() => !animator.GetCurrentAnimatorStateInfo(0).IsName("HeroKnight_Attack1"));
+
+        isAttacking = false;
+    }
+    
     private void Attack()
     {
         if (!isAttacking && Vector2.Distance(player.position, Rb.position) <= attackRange)

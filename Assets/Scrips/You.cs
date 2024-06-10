@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class You : Entity
 {
@@ -28,18 +29,28 @@ public class You : Entity
     public float Hp = MaxHp;
     public HealthUI_TSET healthBar;
 
+    private IEnumerator DeathDelay()
+    {
+        //yield return new WaitUntil(() => !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Death"));
+        yield return new WaitForSeconds(4.0f);
+        SceneManager.LoadScene("GamE_Oveer");
+    }
+    
+    private void Death()
+    {
+        m_animator.SetTrigger("Death");
+        StartCoroutine(DeathDelay());
+    }
     
     private IEnumerator AttackDelay()
     {
         // Stop movement
         Rb.velocity = Vector2.zero;
 
-        // Wait for the attack duration
-        yield return new WaitForSeconds(0.5f);
-
         // Wait for the attack animation to complete
-        yield return new WaitUntil(() => !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Attack1") || !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Attack2"));
+        //yield return new WaitUntil(() => !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Attack1") && !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Attack2"));
 
+        yield return new WaitForSeconds(0.5f);
         m_isAttacking = false;
     }
     
@@ -51,16 +62,16 @@ public class You : Entity
         Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(pos.position, boxSize, 0);
         foreach (Collider2D collider in collider2Ds)
         {
-            if(collider.tag == "Enemy")
+            if (collider.tag == "Enemy")
             {
                 collider.GetComponent<Boss>().Hit(damage);
             }
         }
         m_animator.SetInteger("AttackStack", m_attackStack);
         m_attackStack++;
-        m_isAttacking = false;
         m_curAtkTime = AtkCoolTime;
     }
+    
     public void Hit(float enemyDamage)
     {
         Hp -= enemyDamage;
@@ -69,21 +80,23 @@ public class You : Entity
 
     private void Dodge()
     {
-        
+        // Implement dodge logic here
     }
+    
     void FreezeCharacter()
     {
         Rb.velocity = Vector2.zero;
         Rb.gravityScale = 0;
         Rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezePositionY;
     }
+    
     void UnfreezeCharacter()
     {
         Rb.gravityScale = 1;
         Rb.constraints = RigidbodyConstraints2D.FreezeRotation;
     }
     
-    //Draw Attack Range
+    // Draw Attack Range
     public void OnDrawGizmos()
     {
         Gizmos.color = Color.blue;
@@ -100,17 +113,21 @@ public class You : Entity
     
     void Update()
     {
+        if (Hp <= 0)
+        {
+            Death();
+        }
         SetFalling();
-        //Move
+        // Move
         float moveInput = Input.GetAxis("Horizontal");
         base.Move(moveInput, moveSpeed);
-        if(Mathf.Abs(Rb.velocity.x) > Mathf.Epsilon) 
+        if (Mathf.Abs(Rb.velocity.x) > Mathf.Epsilon) 
             m_animator.SetInteger("AnimState", 1);
         else 
             m_animator.SetInteger("AnimState", 0);
         FlipDir(Rb.velocity.x);
         
-        //Jump
+        // Jump
         if (Input.GetKeyDown(KeyCode.Space) && IsGrounded)
         {
             m_animator.SetBool("IsJumping", true);
@@ -123,7 +140,7 @@ public class You : Entity
             m_isJumping = false;
         }
 
-        //Deciding State
+        // Deciding State
         if (IsGrounded) 
             m_animator.SetBool("IsGrounded", true);
         else 
@@ -134,7 +151,7 @@ public class You : Entity
         else 
             m_animator.SetBool("IsFalling", false);
         
-        //Attack
+        // Attack
         if (m_attackStack > MaxAttackCount - 1)
         {
             m_attackStack = 0;
@@ -142,9 +159,8 @@ public class You : Entity
         }
         if (m_curAtkTime <= 0)
         {
-            if (Input.GetKeyDown(KeyCode.K) && IsGrounded) 
+            if (Input.GetKeyDown(KeyCode.K) && IsGrounded && !m_isAttacking) 
             {
-                /*Debug.Log(AttackStack);*/
                 PlayerPrimaryAttack();
             }
         }
@@ -164,11 +180,6 @@ public class You : Entity
             m_timeToAttack = 0.0f;
         }
 
-        /*if (m_isAttacking) 
-            FreezeCharacter();
-        else 
-            UnfreezeCharacter();*/
-        
         m_timeToAttack += Time.deltaTime;
         m_animator.SetFloat("Till", m_timeToAttack);
     }
