@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 
 public abstract class Entity : MonoBehaviour
@@ -8,8 +7,14 @@ public abstract class Entity : MonoBehaviour
     protected Rigidbody2D Rb;
     protected SpriteRenderer SpriteRenderer;
     public const float FallingThreshold = -0.5f;
-    protected bool isFlipped;  // Moved from Boss class
-    
+    protected bool IsFlipped;  // Moved from Boss class
+
+    protected virtual void Start()
+    {
+        Rb = GetComponent<Rigidbody2D>();
+        SpriteRenderer = GetComponent<SpriteRenderer>();
+    }
+
     // Move
     protected void Move(float moveInput, float moveSpeed)
     {
@@ -19,12 +24,12 @@ public abstract class Entity : MonoBehaviour
     // Flip
     public virtual void FlipDir(float moveInput)
     {
-        if ((moveInput > 0 && isFlipped) || (moveInput < 0 && !isFlipped))
+        if ((moveInput > 0 && IsFlipped) || (moveInput < 0 && !IsFlipped))
         {
             Vector3 flipped = transform.localScale;
-            flipped.x *= -1f; // Flipping along the x-axis for 2D game
+            flipped.x *= -1f;
             transform.localScale = flipped;
-            isFlipped = !isFlipped;
+            IsFlipped = !IsFlipped;
         }
     }
 
@@ -34,8 +39,8 @@ public abstract class Entity : MonoBehaviour
         Rb.velocity = new Vector2(Rb.velocity.x, jumpForce);
     }
 
-    // Is touching ground
-    void OnCollisionEnter2D(Collision2D collision)
+    // Collision detection
+    private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
@@ -43,7 +48,7 @@ public abstract class Entity : MonoBehaviour
         }
     }
 
-    void OnCollisionExit2D(Collision2D collision)
+    private void OnCollisionExit2D(Collision2D collision)
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
@@ -51,17 +56,9 @@ public abstract class Entity : MonoBehaviour
         }
     }
     
-    // Is falling
+    // Check if falling
     protected void SetFalling()
     {
-        if (Rb.velocity.y < FallingThreshold)
-        {
-            IsFalling = true;
-        }
-        else
-        {
-            IsFalling = false;
-        }
+        IsFalling = Rb.velocity.y < FallingThreshold;
     }
-    
 }
