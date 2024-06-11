@@ -14,6 +14,7 @@ public class You : Entity
     [SerializeField] private const float MaxHp = 100.0f;
     [SerializeField] private float jumpForce = 6.0f;
     [SerializeField] private float damage = MaxDamage;
+    [SerializeField] private const float Dodgetime = 0.5f;
     
     private const int MaxAttackCount = 2;
     private const float AtkCoolTime = 0.3f;
@@ -25,6 +26,7 @@ public class You : Entity
     private float m_enemyHP;
     private bool m_isAttacking;
     private bool m_isJumping;
+    private bool m_isDodging;
     
     public float Hp = MaxHp;
     public HealthUI_TSET healthBar;
@@ -32,9 +34,11 @@ public class You : Entity
     private IEnumerator DeathDelay()
     {
         //yield return new WaitUntil(() => !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Death"));
-        yield return new WaitForSeconds(4.0f);
+        yield return new WaitForSeconds(0.0f);
         SceneManager.LoadScene("GamE_Oveer");
     }
+    
+    
     
     private void Death()
     {
@@ -42,23 +46,20 @@ public class You : Entity
         StartCoroutine(DeathDelay());
     }
     
-    private IEnumerator AttackDelay()
+    private IEnumerator Delay(float delaytime)
     {
-        // Stop movement
-        Rb.velocity = Vector2.zero;
-
         // Wait for the attack animation to complete
         //yield return new WaitUntil(() => !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Attack1") && !m_animator.GetCurrentAnimatorStateInfo(0).IsName("Main_Attack2"));
 
-        yield return new WaitForSeconds(0.5f);
-        m_isAttacking = false;
+        yield return new WaitForSeconds(delaytime);
     }
     
     void PlayerPrimaryAttack()
     {
         m_isAttacking = true;
         m_animator.SetTrigger("Attack");
-        StartCoroutine(AttackDelay());
+        StartCoroutine(Delay(0.5f));
+        m_isAttacking = false;
         Collider2D[] collider2Ds = Physics2D.OverlapBoxAll(pos.position, boxSize, 0);
         foreach (Collider2D collider in collider2Ds)
         {
@@ -74,13 +75,19 @@ public class You : Entity
     
     public void Hit(float enemyDamage)
     {
-        Hp -= enemyDamage;
+        if(!m_isDodging)
+        {
+            Hp -= enemyDamage;
+        }
         healthBar.SetHealth(Hp);
     }
 
     private void Dodge()
     {
-        // Implement dodge logic here
+        m_isDodging = true;
+        m_animator.SetTrigger("dodge");
+        StartCoroutine(Delay(0.5f));
+        m_isDodging = false;
     }
     
     void FreezeCharacter()
@@ -113,6 +120,10 @@ public class You : Entity
     
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            Dodge();
+        }
         if (Hp <= 0)
         {
             Death();
