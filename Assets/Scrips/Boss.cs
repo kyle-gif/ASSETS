@@ -26,10 +26,10 @@ public class Boss : Entity
         float direction = player.position.x - Rb.position.x;
         FlipDir(direction * -1);
         animator.SetInteger("AnimState", Mathf.Abs(Rb.velocity.x) > 0 ? 1 : 0);
-
+        Debug.Log(Mathf.Abs(player.position.x - Rb.position.x));
         if (Mathf.Abs(direction) > AttackRange)
         {
-            Move(Mathf.Sign(direction), MaxSpeed);
+            Move(direction > 0 ? 1 : -1, MaxSpeed);
         }
         else
         {
@@ -83,8 +83,8 @@ public class Boss : Entity
     }
     private IEnumerator DeathDelay()
     {
-        yield return new WaitForSeconds(3.0f); // Adjust delay as needed
-        SceneManager.LoadScene("GamE_Oveer");
+        yield return new WaitForSeconds(0.0f); // Adjust delay as needed
+        SceneManager.LoadScene("Game_win");
     }
     
     protected override void Start()
@@ -99,5 +99,10 @@ public class Boss : Entity
     {
         ChasePlayer();
         AttackPlayer();
+        if (Hp <= 0)
+        {
+            Death();
+        }
     }
+    
 }

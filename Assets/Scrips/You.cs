@@ -157,7 +157,7 @@ public class You : Entity
 
     private IEnumerator DeathDelay()
     {
-        yield return new WaitForSeconds(3.0f); // Adjust delay as needed
+        yield return new WaitForSeconds(0.0f); // Adjust delay as needed
         SceneManager.LoadScene("GamE_Oveer");
     }
 

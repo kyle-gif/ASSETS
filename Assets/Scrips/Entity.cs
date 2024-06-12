@@ -18,6 +18,7 @@ public abstract class Entity : MonoBehaviour
     // Move
     protected void Move(float moveInput, float moveSpeed)
     {
+        Debug.Log(moveInput+" " +moveSpeed);
         Rb.velocity = new Vector2(moveInput * moveSpeed, Rb.velocity.y);
     }
 
